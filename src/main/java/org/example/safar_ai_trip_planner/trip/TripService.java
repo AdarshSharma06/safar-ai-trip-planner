@@ -2,6 +2,9 @@ package org.example.safar_ai_trip_planner.trip;
 
 import lombok.RequiredArgsConstructor;
 import org.example.safar_ai_trip_planner.common.exception.AccessDeniedException;
+import org.example.safar_ai_trip_planner.destination.Destination;
+import org.example.safar_ai_trip_planner.destination.DestinationRepository;
+import org.example.safar_ai_trip_planner.trip.dto.CreateTripRequest;
 import org.example.safar_ai_trip_planner.trip.dto.TripResponse;
 import org.example.safar_ai_trip_planner.trip.dto.UpdateTripRequest;
 import org.example.safar_ai_trip_planner.user.User;
@@ -16,81 +19,107 @@ import java.util.List;
 public class TripService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
+    private final DestinationRepository destinationRepository;
+    private TripResponse mapToResponse(Trip trip){
+        return TripResponse.builder()
+                .id(trip.getId())
+                .destinationId(trip.getDestination().getId())
+                .destinationName(trip.getDestination().getName())
+                .startDate(trip.getStartDate())
+                .duration(trip.getDuration())
+                .budget(trip.getBudget())
+                .tripStyle(trip.getTripStyle())
+                .transportPreference(trip.getTransportPreference())
+                .foodPreference(trip.getFoodPreference())
+                .interests(trip.getInterests())
+                .build();
+    }
 
+    public TripResponse createTrip(CreateTripRequest request, String userEmail){
 
-    public TripResponse createTrip(String email, String title, String description
-    ,LocalDate startDate, LocalDate endDate){
-
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        Destination destination = destinationRepository.findById(request.getDestinationId())
+                .orElseThrow(() -> new RuntimeException("Destination not found"));
+
         Trip trip = new Trip();
-        trip.setTitle(title);
-        trip.setDescription(description);
-        trip.setStartDate(startDate);
-        trip.setEndDate(endDate);
         trip.setUser(user);
+        trip.setDestination(destination);
+        trip.setStartDate(request.getStartDate());
+        trip.setDuration(request.getDuration());
+        trip.setBudget(request.getBudget());
+        trip.setTripStyle(request.getTripStyle());
+        trip.setTransportPreference(request.getTransportPreference());
+        trip.setFoodPreference(request.getFoodPreference());
+        trip.setInterests(request.getInterests());
 
-        Trip savedTrip =  tripRepository.save(trip);
 
-        return new TripResponse(
-                savedTrip.getId(),
-                savedTrip.getTitle(),
-                savedTrip.getDescription(),
-                savedTrip.getStartDate(),
-                savedTrip.getEndDate()
-        );
+        Trip saved =  tripRepository.save(trip);
+
+        return mapToResponse(saved );
     }
 
-    public List<TripResponse> getTripsForUser(String email){
-        return tripRepository.findByUserEmail(email)
+    public List<TripResponse> getTripsForUser(String userEmail){
+        return tripRepository.findByUserEmail(userEmail)
                 .stream()
-                .map(trip -> new TripResponse(
-                        trip.getId(),
-                        trip.getTitle(),
-                        trip.getDescription(),
-                        trip.getStartDate(),
-                        trip.getEndDate()
-                ))
+                .map(this::mapToResponse)
                 .toList();
-    }
 
-    public void deleteTrip(Long tripId, String email){
+    }
+    public TripResponse getTripById(Long tripId, String userEmail){
+
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
-        if(!trip.getUser().getEmail().equals(email)){
+
+        if(!trip.getUser().getEmail().equals(userEmail)){
+            throw new AccessDeniedException("You are not allowed to access this trip");
+        }
+
+        return mapToResponse(trip);
+    }
+    public void deleteTrip(Long tripId, String userEmail){
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+        if(!trip.getUser().getEmail().equals(userEmail)){
             throw new AccessDeniedException("You are not allowed to delete this trip");
         }
         tripRepository.delete(trip);
     }
 
-    public TripResponse updateTrip(Long id, String email, UpdateTripRequest request){
+    public TripResponse updateTrip(Long id, String userEmail, UpdateTripRequest request){
 
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
 
-        if(!trip.getUser().getEmail().equals(email)){
+        if(!trip.getUser().getEmail().equals(userEmail)){
             throw new AccessDeniedException("You are not allowed to update this trip");
         }
 
-        if(request.getTitle() != null)
-            trip.setTitle(request.getTitle());
-        if(request.getDescription() != null)
-            trip.setDescription(request.getDescription());
-        if(request.getStartDate() != null)
+        if (request.getStartDate() != null)
             trip.setStartDate(request.getStartDate());
-        if(request.getEndDate() != null)
-            trip.setEndDate(request.getEndDate());
+
+        if (request.getDuration() != null)
+            trip.setDuration(request.getDuration());
+
+        if (request.getBudget() != null)
+            trip.setBudget(request.getBudget());
+
+        if (request.getTripStyle() != null)
+            trip.setTripStyle(request.getTripStyle());
+
+        if (request.getTransportPreference() != null)
+            trip.setTransportPreference(request.getTransportPreference());
+
+        if (request.getFoodPreference() != null)
+            trip.setFoodPreference(request.getFoodPreference());
+
+        if (request.getInterests() != null)
+            trip.setInterests(request.getInterests());
 
         Trip updated = tripRepository.save(trip);
 
-        return new TripResponse(
-                updated.getId(),
-                updated.getTitle(),
-                updated.getDescription(),
-                updated.getStartDate(),
-                updated.getEndDate()
-        );
+        return mapToResponse(updated);
     }
 }
 

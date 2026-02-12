@@ -10,12 +10,12 @@ import java.time.LocalDate;
 @Setter
 public class CreateTripRequest {
 
-    @NotBlank
-    private String title;
-
-    private String description;
-
-    private LocalDate startDate;
-
-    private LocalDate endDate;
+    private Long destinationId;
+    private LocalDate startDate ;
+    private Integer duration;
+    private Double budget;
+    private String tripStyle;
+    private String transportPreference;
+    private String foodPreference;
+    private String interests;
 }

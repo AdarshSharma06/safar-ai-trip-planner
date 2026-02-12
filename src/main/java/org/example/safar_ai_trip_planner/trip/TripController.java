@@ -24,13 +24,7 @@ public class TripController {
                 .getAuthentication()
                 .getPrincipal();
 
-        return tripService.createTrip(
-                email,
-                request.getTitle(),
-                request.getDescription(),
-                request.getStartDate(),
-                request.getEndDate()
-        );
+        return tripService.createTrip(request, email);
     }
 
     @GetMapping
