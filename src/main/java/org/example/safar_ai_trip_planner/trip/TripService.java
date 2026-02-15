@@ -32,6 +32,9 @@ public class TripService {
                 .transportPreference(trip.getTransportPreference())
                 .foodPreference(trip.getFoodPreference())
                 .interests(trip.getInterests())
+                .sourceCity(trip.getSourceCity())
+                .sourceLatitude(trip.getSourceLatitude())
+                .sourceLongitude(trip.getSourceLongitude())
                 .build();
     }
 
@@ -53,7 +56,9 @@ public class TripService {
         trip.setTransportPreference(request.getTransportPreference());
         trip.setFoodPreference(request.getFoodPreference());
         trip.setInterests(request.getInterests());
-
+        trip.setSourceCity(request.getSourceCity());
+        trip.setSourceLatitude(request.getSourceLatitude());
+        trip.setSourceLongitude(request.getSourceLongitude());
 
         Trip saved =  tripRepository.save(trip);
 
@@ -72,18 +77,14 @@ public class TripService {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
 
-        if(!trip.getUser().getEmail().equals(userEmail)){
-            throw new AccessDeniedException("You are not allowed to access this trip");
-        }
+        validateTripOwnership(trip,userEmail);
 
         return mapToResponse(trip);
     }
     public void deleteTrip(Long tripId, String userEmail){
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
-        if(!trip.getUser().getEmail().equals(userEmail)){
-            throw new AccessDeniedException("You are not allowed to delete this trip");
-        }
+        validateTripOwnership(trip,userEmail);
         tripRepository.delete(trip);
     }
 
@@ -92,9 +93,7 @@ public class TripService {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
 
-        if(!trip.getUser().getEmail().equals(userEmail)){
-            throw new AccessDeniedException("You are not allowed to update this trip");
-        }
+       validateTripOwnership(trip,userEmail);
 
         if (request.getStartDate() != null)
             trip.setStartDate(request.getStartDate());
@@ -120,6 +119,12 @@ public class TripService {
         Trip updated = tripRepository.save(trip);
 
         return mapToResponse(updated);
+    }
+
+    public void validateTripOwnership(Trip trip , String userEmail){
+        if(!trip.getUser().getEmail().equals(userEmail)){
+            throw new AccessDeniedException("You are not allowed to access this trip");
+        }
     }
 }
 

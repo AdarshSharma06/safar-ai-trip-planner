@@ -43,4 +43,41 @@ public class DestinationService {
                 .orElseThrow(() -> new RuntimeException("Destination not found"));
         return mapToResponse(destination);
     }
+    public DestinationResponse updateDestination(Long id, Destination request){
+        Destination destination = destinationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Destination not found"));
+
+        // Smart update (only non-null fields)
+        if(request.getName() != null)
+            destination.setName(request.getName());
+
+        if(request.getState() != null)
+            destination.setState(request.getState());
+
+        if(request.getCountry() != null)
+            destination.setCountry(request.getCountry());
+
+        if(request.getDescription() != null)
+            destination.setDescription(request.getDescription());
+
+        if(request.getImageUrl() != null)
+            destination.setImageUrl(request.getImageUrl());
+
+        if(request.getLatitude() != null)
+            destination.setLatitude(request.getLatitude());
+
+        if(request.getLongitude() != null)
+            destination.setLongitude(request.getLongitude());
+
+        Destination updated = destinationRepository.save(destination);
+        return mapToResponse(updated); // use your existing mapper
+    }
+
+    public void deleteDestination(Long id){
+        Destination destination = destinationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Destination not found"));
+
+        destinationRepository.delete(destination);
+    }
+
 }

@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface StepRepository extends JpaRepository<Step, Long> {
     List<Step> findByDayPlanIdOrderByStepOrder(Long dayPlanId);
+    boolean existsByPlaceId(Long placeId);
 }
 

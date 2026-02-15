@@ -37,4 +37,11 @@ public class Trip extends BaseEntity {
     @Column(length=1000)
     private String interests;
 
+    @Column(nullable = false)
+    private String sourceCity;
+
+    private Double sourceLatitude;
+
+    private Double sourceLongitude;
+
 }

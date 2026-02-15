@@ -33,6 +33,6 @@ public class UserService {
         if(!passwordEncoder.matches(password, user.getPassword())){
             throw new AuthenticationException("Invalid email or password");
         }
-        return jwtService.generateToken(user.getEmail());
+        return jwtService.generateToken(user.getEmail(), user.getRole().name());
     }
 }

@@ -1,6 +1,7 @@
 package org.example.safar_ai_trip_planner.itinerary;
 
 import lombok.RequiredArgsConstructor;
+import org.example.safar_ai_trip_planner.common.ApiResponse;
 import org.example.safar_ai_trip_planner.itinerary.dto.ItineraryResponse;
 import org.example.safar_ai_trip_planner.step.dto.UpdateStepStatusRequest;
 import org.springframework.security.core.Authentication;
@@ -14,30 +15,31 @@ public class ItineraryController {
     private final ItineraryService itineraryService;
 
     @PostMapping("/{tripId}/generate")
-    public String generateItinerary(@PathVariable Long tripId){
+    public ApiResponse<ItineraryResponse> generateItinerary(@PathVariable Long tripId){
         String email = (String) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
 
         itineraryService.generateItinerary(tripId, email);
-
-        return "Itinerary generated successfully";
+        ItineraryResponse response = itineraryService.getItineraryByTripId(tripId, email);
+        return ApiResponse.success("Itinerary generated successfully", response);
     }
     @GetMapping("/{tripId}")
-    public ItineraryResponse getItinerary(@PathVariable Long tripId){
+    public ApiResponse<ItineraryResponse> getItinerary(@PathVariable Long tripId){
         String email = (String) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
-        return itineraryService.getItineraryByTripId(tripId, email);
+        ItineraryResponse response =  itineraryService.getItineraryByTripId(tripId, email);
+        return ApiResponse.success("Itinerary fetched successfully", response);
     }
 
     @PatchMapping("/steps/{stepId}/status")
-    public String updateStepStatus(@PathVariable Long stepId,@RequestBody UpdateStepStatusRequest request,
+    public ApiResponse<Void> updateStepStatus(@PathVariable Long stepId,@RequestBody UpdateStepStatusRequest request,
                                    Authentication authentication){
         String userEmail = authentication.getName();
         itineraryService.updateStepStatus(stepId, request.getStatus(), userEmail);
-        return "Step status updated successfully";
+        return ApiResponse.success("Step status updated successfully", null);
     }
 }

@@ -22,4 +22,7 @@ public class TripResponse {
     private String transportPreference;
     private String foodPreference;
     private String interests;
+    private String sourceCity;
+    private Double sourceLatitude;
+    private Double sourceLongitude;
 }

@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.safar_ai_trip_planner.common.BaseEntity;
+import org.example.safar_ai_trip_planner.common.enums.Role;
 import org.example.safar_ai_trip_planner.trip.Trip;
 
 import java.util.List;
@@ -37,5 +38,11 @@ public class User extends BaseEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade= CascadeType.ALL)
     private List<Trip> trips;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable=false)
+    private Role role = Role.USER;
+
+
 
 }

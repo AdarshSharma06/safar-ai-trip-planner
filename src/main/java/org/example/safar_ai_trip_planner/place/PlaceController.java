@@ -25,4 +25,17 @@ public class PlaceController {
         }
         return placeService.getPlacesByDestination(destinationId);
     }
+    @PutMapping("/{id}")
+    public PlaceResponse updatePlace(
+            @PathVariable Long id,
+            @RequestBody Place place){
+        return placeService.updatePlace(id, place);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deletePlace(@PathVariable Long id){
+        placeService.deletePlace(id);
+        return "Place deleted successfully";
+    }
+
 }
