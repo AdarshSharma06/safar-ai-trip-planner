@@ -47,7 +47,7 @@ public class DestinationService {
         Destination destination = destinationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Destination not found"));
 
-        // Smart update (only non-null fields)
+
         if(request.getName() != null)
             destination.setName(request.getName());
 
@@ -70,7 +70,7 @@ public class DestinationService {
             destination.setLongitude(request.getLongitude());
 
         Destination updated = destinationRepository.save(destination);
-        return mapToResponse(updated); // use your existing mapper
+        return mapToResponse(updated);
     }
 
     public void deleteDestination(Long id){

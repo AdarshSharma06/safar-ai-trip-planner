@@ -96,7 +96,7 @@ public class DataLoader implements CommandLineRunner {
                 )
         );
 
-        reader.readNext(); // skip header
+        reader.readNext();
 
         String[] data;
 
